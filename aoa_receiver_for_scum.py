@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from math import pi, atan2, sqrt
 from scipy.linalg import eig
 
-ser = serial.Serial('COM11', 115200)
+ser = serial.Serial('COM5', 115200)
 
 import cmath
 import interpolation
