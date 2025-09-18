@@ -7,6 +7,9 @@ SPEED_OF_LIGHT  = 299792458
 
 def cal_angle_with_grid_search(I_data, Q_data, angle_change_1us):
 
+    frequency = 2.402e9 + (angle_change_1us*1e6/(2*np.pi))
+    wavelength = SPEED_OF_LIGHT / frequency
+
     ant0_I = I_data[9:92:8]
     ant0_Q = Q_data[9:92:8]
 
@@ -72,11 +75,11 @@ def cal_angle_with_grid_search(I_data, Q_data, angle_change_1us):
     ant2_I_mean, ant2_Q_mean = normalization(ant2_I_mean, ant2_Q_mean)
     ant3_I_mean, ant3_Q_mean = normalization(ant1_I_mean, ant3_Q_mean)
 
-    def steering_vector(alpha):
+    def steering_vector(alpha, frequency, wavelength):
         j = 1j  # 复数单位
-        return np.array([1, cmath.exp(-j * 2 * np.pi * 2.40225e9 * (0.0375*np.sin(alpha)/SPEED_OF_LIGHT)), cmath.exp(-j * 2 * np.pi * 2.40225e9 * 2*(0.0375*np.sin(alpha)/SPEED_OF_LIGHT))])
+        return np.array([1, cmath.exp(-j * 2 * np.pi * frequency * (0.0375*np.sin(alpha)/SPEED_OF_LIGHT)), cmath.exp(-j * 2 * np.pi * frequency * 2*(0.0375*np.sin(alpha)/SPEED_OF_LIGHT))])
 
-    def DoA_algorithm(ant0_I_mean, ant0_Q_mean, ant1_I_mean, ant1_Q_mean, ant2_I_mean, ant2_Q_mean):
+    def DoA_algorithm(ant0_I_mean, ant0_Q_mean, ant1_I_mean, ant1_Q_mean, ant2_I_mean, ant2_Q_mean, angle_change_1us):
         ant0_theta = cmath.phase(complex(ant0_I_mean, ant0_Q_mean))
         ant1_theta = cmath.phase(complex(ant1_I_mean, ant1_Q_mean))
         ant2_theta = cmath.phase(complex(ant2_I_mean, ant2_Q_mean))
@@ -90,12 +93,12 @@ def cal_angle_with_grid_search(I_data, Q_data, angle_change_1us):
         angle_list = [np.radians(i) for i in range(-90, 90)]
         y_alpha_list = []
         for alpha in angle_list:
-            y_alpha = steering_vector(alpha)[0]*received_signal[0] + steering_vector(alpha)[1]*received_signal[1] + steering_vector(alpha)[2]*received_signal[2]
+            y_alpha = steering_vector(alpha, frequency, wavelength)[0]*received_signal[0] + steering_vector(alpha, frequency, wavelength)[1]*received_signal[1] + steering_vector(alpha, frequency, wavelength)[2]*received_signal[2]
             y_alpha_list.append(y_alpha)
 
         #plt.plot([i for i in range(-90, 90)], y_alpha_list)
         #plt.show()
         return [i for i in range(-90, 90)][np.argmax(np.array(y_alpha_list))]
     
-    angle = DoA_algorithm(ant0_I_mean, ant0_Q_mean, ant1_I_mean, ant1_Q_mean, ant2_I_mean, ant2_Q_mean)
+    angle = DoA_algorithm(ant0_I_mean, ant0_Q_mean, ant1_I_mean, ant1_Q_mean, ant2_I_mean, ant2_Q_mean, angle_change_1us)
     return angle

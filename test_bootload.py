@@ -9,9 +9,9 @@ import time
 nRF_ser = None
 uart_ser = None
 
-nRF_port="COM15"
+nRF_port="COM19"
 #binary_image="C:/Users/11422/Desktop/yiming_refcal/scum-test-code/scm_v3c/applications/ble_tx/Objects/ble_tx.bin"
-#binary_image="C:/Users/11422/Desktop/cheng_scum/scum-test-code/scm_v3c/applications/ble_tx/Objects/ble_tx.bin"
+# binary_image="C:/Users/11422/Desktop/cheng_scum/scum-test-code/scm_v3c/applications/ble_tx/Objects/ble_tx.bin"
 binary_image="C:/Users/11422/Desktop/scum_aoa/ble_tx.bin"
 #binary_image="C:/Users/fmaksimo/scum/scum-test-code/scm_v3c/applications/ble_freq_sweep/Objects/ble_freq_sweep.bin"
 #binary_image="C:/Users/fmaksimo/scum/scum-hornet/scm_v3c/applications/ble_freq_sweep/Objects/ble_freq_sweep.bin"

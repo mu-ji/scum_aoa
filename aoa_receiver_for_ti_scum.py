@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from math import pi, atan2, sqrt
 from scipy.linalg import eig
 
-ser = serial.Serial('COM5', 115200)
+ser = serial.Serial('COM27', 115200)
 
 import cmath
 import interpolation
@@ -119,17 +119,17 @@ while len(grid_search_list) <= 20 and len(music_list) <= 20:
             reference_I = I_data[:8]
             reference_Q = Q_data[:8]
 
-            ant0_I = I_data[9:92:8]
-            ant0_Q = Q_data[9:92:8]
+            ant0_I = I_data[9:92:6]
+            ant0_Q = Q_data[9:92:6]
+            
+            ant1_I = I_data[11:92:6]
+            ant1_Q = Q_data[11:92:6]
 
-            ant1_I = I_data[11:92:8]
-            ant1_Q = Q_data[11:92:8]
+            ant2_I = I_data[13:92:6]
+            ant2_Q = Q_data[13:92:6]
+            
 
-            ant2_I = I_data[13:92:8]
-            ant2_Q = Q_data[13:92:8]
-
-            ant3_I = I_data[15:92:8]
-            ant3_Q = Q_data[15:92:8]
+            print(len(ant2_I))
 
             def normalization(ant_I, ant_Q):
                 # 计算幅度
@@ -151,7 +151,6 @@ while len(grid_search_list) <= 20 and len(music_list) <= 20:
             ant0_I, ant0_Q = ant_IQ_norm(ant0_I, ant0_Q)
             ant1_I, ant1_Q = ant_IQ_norm(ant1_I, ant1_Q)
             ant2_I, ant2_Q = ant_IQ_norm(ant2_I, ant2_Q)
-            ant3_I, ant3_Q = ant_IQ_norm(ant3_I, ant3_Q)
             
             # for i in range(len(ant0_I)):
             #     plt.plot([0,ant0_I[i]], [0, ant0_Q[i]], label='{}'.format(i))
@@ -196,7 +195,7 @@ while len(grid_search_list) <= 20 and len(music_list) <= 20:
                 return I_new, Q_new
             def compensate_phase(ant_I, ant_Q, angle_change_1us):
                 for i in range(len(ant_I)):
-                    rotate_angle = i*(angle_change_1us)*8
+                    rotate_angle = i*(angle_change_1us)*6
                     ant_I[i], ant_Q[i] = rotate_vector(ant_I[i], ant_Q[i], -rotate_angle)
                 return ant_I, ant_Q
             
@@ -215,7 +214,6 @@ while len(grid_search_list) <= 20 and len(music_list) <= 20:
             ant0_I, ant0_Q = compensate_phase(ant0_I, ant0_Q, angle_change_1us)
             ant1_I, ant1_Q = compensate_phase(ant1_I, ant1_Q, angle_change_1us)
             ant2_I, ant2_Q = compensate_phase(ant2_I, ant2_Q, angle_change_1us)
-            ant3_I, ant3_Q = compensate_phase(ant3_I, ant3_Q, angle_change_1us)
             
             # ax2 = plt.subplot(122)
             # unit_circle = plt.Circle((0, 0), 1, color='blue', fill=False, label='Unit Circle')
@@ -233,20 +231,16 @@ while len(grid_search_list) <= 20 and len(music_list) <= 20:
             ant0_I_mean, ant0_Q_mean = np.mean(ant0_I), np.mean(ant0_Q)
             ant1_I_mean, ant1_Q_mean = np.mean(ant1_I), np.mean(ant1_Q)
             ant2_I_mean, ant2_Q_mean = np.mean(ant2_I), np.mean(ant2_Q)
-            ant3_I_mean, ant3_Q_mean = np.mean(ant3_I), np.mean(ant3_Q)
 
             rotate_angle_1_0 = 2*(angle_change_1us) #+ np.radians(24)
             rotate_angle_2_0 = 4*(angle_change_1us)
-            rotate_angle_3_0 = 6*(angle_change_1us) #+ np.radians(24)
 
             ant1_I_mean, ant1_Q_mean = rotate_vector(ant1_I_mean, ant1_Q_mean, -rotate_angle_1_0)
             ant2_I_mean, ant2_Q_mean = rotate_vector(ant2_I_mean, ant2_Q_mean, -rotate_angle_2_0)
-            ant3_I_mean, ant3_Q_mean = rotate_vector(ant3_I_mean, ant3_Q_mean, -rotate_angle_3_0)
             
             ant0_I_mean, ant0_Q_mean = normalization(ant0_I_mean, ant0_Q_mean)
             ant1_I_mean, ant1_Q_mean = normalization(ant1_I_mean, ant1_Q_mean)
             ant2_I_mean, ant2_Q_mean = normalization(ant2_I_mean, ant2_Q_mean)
-            ant3_I_mean, ant3_Q_mean = normalization(ant1_I_mean, ant3_Q_mean)
 
             
             # ax = plt.subplot(111)
@@ -304,37 +298,34 @@ while len(grid_search_list) <= 20 and len(music_list) <= 20:
             print('DoA:', angle)
             grid_search_list.append(angle)
 
-            x_n = interpolation.generate_xn(music_I_data, music_Q_data)
-            #print(x_n.shape)
+            # x_n = interpolation.generate_xn(music_I_data, music_Q_data)
+            # #print(x_n.shape)
 
-            ant0_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 0)
-            ant1_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 1)
-            ant2_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 2)
-            ant3_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 3)
+            # ant0_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 0)
+            # ant1_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 1)
+            # ant2_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 2)
+            # ant3_signal = interpolation.recover_one_ant(x_n, angle_change_1us, 3)
 
-            x_n[0,:] = ant0_signal
-            x_n[1,:] = ant1_signal
-            x_n[2,:] = ant2_signal
-            x_n[3,:] = ant3_signal
+            # x_n[0,:] = ant0_signal
+            # x_n[1,:] = ant1_signal
+            # x_n[2,:] = ant2_signal
+            # x_n[3,:] = ant3_signal
 
-            music_spectrum, music_angle = music.music_algorithm(x_n[0:3], 1, np.linspace(-90, 90, 180))
-            print('music_angle:', music_angle)
-            music_list.append(music_angle)
+            # music_spectrum, music_angle = music.music_algorithm(x_n[0:3], 1, np.linspace(-90, 90, 180), 2.40225e9)
+            # print('music_angle:', music_angle)
+            # music_list.append(music_angle)
 
             reference_I = I_data[:8]
             reference_Q = Q_data[:8]
 
-            ant0_I = I_data[9:92:8]
-            ant0_Q = Q_data[9:92:8]
+            ant0_I = I_data[9:92:6]
+            ant0_Q = Q_data[9:92:6]
 
-            ant1_I = I_data[11:92:8]
-            ant1_Q = Q_data[11:92:8]
+            ant1_I = I_data[11:92:6]
+            ant1_Q = Q_data[11:92:6]
 
-            ant2_I = I_data[13:92:8]
-            ant2_Q = Q_data[13:92:8]
-
-            ant3_I = I_data[15:92:8]
-            ant3_Q = Q_data[15:92:8]
+            ant2_I = I_data[13:92:6]
+            ant2_Q = Q_data[13:92:6]
 
             rssi = bytes(rawFrame[-8:-4])
             rssi = int(rssi.decode('utf-8'))
